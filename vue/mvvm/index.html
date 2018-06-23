@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- VUE 是MVVM  -->
+    <!-- data-binding  -->
+    <!-- template compile-->
+
+    <!-- 先编译再把对应的数据挂载上去 -->
+    <!-- 支持对{{}}的解析,template compile 先经过vue编译一下，template -> html {{key}} -》 data{name: '张双双'} 数据的回填
+        1 找坑 2 填数据
+
+        -->
+    <div id="app">
+        <h3>姓名</h3>
+        <p>我的名字是{{name}}</p>
+        <h3>年龄</h3>
+        <p>{{age}}</p>
+        <div class="msg">
+            <p>{{msg}}</p>
+        </div>
+    </div>
+    <!-- #app根节点 el->element 表示vue再哪个节点上构成 在根节点上挂载模板-->
+    <script>
+        class Vue {
+            constructor(opt) {
+                this.opt = opt;
+                this.root = document.querySelector(this.opt.el); //而不是=opt.el;
+                this.compile(this.root);
+            }
+            compile(node) {
+                // 遍历节点，文本节点
+                [].forEach.call(node.childNodes, child => {
+                    // console.log(child);  //<p>{{name}}</p> p.innerHTML等于{{name}},对于有些则为undefined
+                    // .匹配所有字符，*从0-无穷
+
+                    // 子节点下面有没有其他子元素节点，第一个为元素节点的子节点
+                    if(!child.firstElementChild && /\{\{(.*)\}\}/.test(child.innerHTML)) {
+                        // 替换一部分
+                        let key = RegExp.$1.trim();
+                        child.innerHTML = child.innerHTML.replace(/\{\{(.*)\}\}/,this.opt.data[key]);
+                        // $1、$2得到不同分组的结果，RegExp会指最近的那一个,对于变量名要[key]
+                    }else if (child.firstElementChild) {
+                        this.compile(child);
+                    }
+                });
+            }
+        }
+        // 在onload之前加载
+        document.addEventListener('DOMContentLoaded', function () {
+            let options = {
+                el: '#app',
+                data: {
+                    name: '检索中...',
+                    age: 30,
+                    msg: 'vue 高手，月薪5万'
+                }
+
+            }
+            new Vue(options)
+        });
+
+    </script>
+</body>
+
+</html>
